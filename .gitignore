@@ -1,89 +1,50 @@
-## =========================================================================
-## .NET / Visual Studio
-## =========================================================================
-
-# Build artifacts
-[Bb]in/
-[Oo]bj/
-out/
-artifacts/
-publish/
-
-# User-specific files
+## .NET
+bin/
+obj/
 *.user
+*.suo
 *.userosscache
 *.sln.docstates
-*.suo
 
-# Visual Studio cache & temporary files
-.vs/
-*.opendb
-*.dbmdl
-*.VC.db
-*.VC.opendb
-
-# MSBuild / Roslyn logs
-*.log
-*.binlog
-*.msvcclog
-
-## =========================================================================
 ## NuGet
-## =========================================================================
-
-# Restore artifacts
-project.lock.json
-project.assets.json
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
 *.nuget.props
 *.nuget.targets
+project.lock.json
 
-# Package cache
-packages/
-
-## =========================================================================
-## Release Assets (Zips & Packages)
-## =========================================================================
-
-# Specific requested patterns
-YAML2JSON_v*.zip
-
-# General safety for all compressed files
-*.zip
-*.tar.gz
-*.7z
-*.nupkg
-
-## =========================================================================
-## IDE / Editor Specific
-## =========================================================================
-
-# VS Code
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-# JetBrains Rider
+## VS / Rider
+.vs/
 .idea/
-*.sln.iml
+*.DotSettings.user
 
-# Windows / macOS system files
+## OS
 .DS_Store
 Thumbs.db
 
-## =========================================================================
-## Environment & Testing
-## =========================================================================
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
 
-# Secrets and Local Config
-.env
-*.dev.local
-appsettings.Development.json
-
-# Test Results & Coverage
-TestResults/
-*.sequenced
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResult.xml
+coverage*/
 *.coverage
-*.opencoverxml
+*.coveragexml
+
+## Publish output
+publish/
+*_Asset.zip
+
+## Claude
+.claude/
