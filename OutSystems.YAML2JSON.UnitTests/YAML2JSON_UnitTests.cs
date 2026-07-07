@@ -151,6 +151,35 @@ public class Tests
         Assert.That(errorData.Message, Does.Contain("nesting depth"));
     }
 
+    [TestCase("x: .inf")]
+    [TestCase("x: -.inf")]
+    [TestCase("x: .nan")]
+    [TestCase("x: 1e999")]
+    public void ConvertYAML2JSON_RejectsNonFiniteFloats_AsInvalidJson(string input)
+    {
+        var yaml2json = new Yaml2Json();
+
+        yaml2json.ConvertYamlToJson(input, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False, $"'{input}' must not be reported as a successful conversion");
+        Assert.That(result, Is.Empty);
+        Assert.That(errorData.Message, Does.Contain("valid JSON"));
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_RejectsNestingAboveDepthCap()
+    {
+        var yaml2json = new Yaml2Json();
+        // 60 levels: within the old cap of 100, but above the tightened cap (48).
+        var input = new string('[', 60) + new string(']', 60);
+
+        yaml2json.ConvertYamlToJson(input, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
+        Assert.That(errorData.Message, Does.Contain("nesting depth"));
+    }
+
     [Test]
     public void ConvertYAML2JSON_RejectsOversizedInput()
     {

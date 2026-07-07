@@ -12,7 +12,9 @@ namespace OutSystems.YAML2JSON
     {
         // Bounds to protect the (Lambda-backed) worker from untrusted-input resource exhaustion.
         private const int MaxInputLength = 1_048_576; // 1 MB of characters
-        private const int MaxNestingDepth = 100;
+        // Kept below YamlDotNet's own serializer recursion guard (~50) so this check is the
+        // one that actually fires, returning a clean error instead of the serializer's.
+        private const int MaxNestingDepth = 48;
 
         /// <summary>
         /// The ConvertYamlToJson method takes a YAML string, converts it to JSON format, and provides
@@ -59,11 +61,34 @@ namespace OutSystems.YAML2JSON
            
                 var yamlObject = deserializer.Deserialize(input);
                 var serializer = new YamlDotNet.Serialization.SerializerBuilder()
-                    .JsonCompatible()                  
+                    .JsonCompatible()
                     .Build();
 
-                ConvertedJSON = serializer.Serialize(yamlObject);
+                string json;
+                try
+                {
+                    json = serializer.Serialize(yamlObject);
+                }
+                catch (YamlDotNet.Core.YamlException)
+                {
+                    // Serializer failures (e.g. graph too complex) can embed internal .NET
+                    // type names in their message; return a sanitized error instead of leaking them.
+                    throw new ArgumentException("The yaml could not be converted to JSON: the document structure is too complex.");
+                }
 
+                // JsonCompatible() still emits YAML special scalars (.inf, -.inf, .nan, and
+                // overflowing numbers) that are not valid JSON. Confirm the output actually
+                // parses as JSON before reporting success.
+                try
+                {
+                    using var _ = System.Text.Json.JsonDocument.Parse(json);
+                }
+                catch (System.Text.Json.JsonException)
+                {
+                    throw new ArgumentException("The yaml produced output that is not valid JSON (for example non-finite numbers such as .inf/.nan, or unescaped control characters).");
+                }
+
+                ConvertedJSON = json;
                 IsSuccess = true;
             }
             // SyntaxErrorException and SemanticErrorException both derive from YamlException.
