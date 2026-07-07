@@ -1,6 +1,6 @@
 # Outsystems-ODC-Ext-YAML2JSON
 
-YAML2JSON is an OutSystems ODC extension that enables the conversion of YAML strings into JSON format using the [YamlDotNet library](https://github.com/aaubry/YamlDotNet) (v15.1.6). It is designed to facilitate seamless data format conversion within OutSystems applications, enhancing data interoperability and management.
+YAML2JSON is an OutSystems ODC extension that enables the conversion of YAML strings into JSON format using the [YamlDotNet library](https://github.com/aaubry/YamlDotNet) (v15.3.0). It is designed to facilitate seamless data format conversion within OutSystems applications, enhancing data interoperability and management.
 
 ## Features
 ### Actions
@@ -46,7 +46,7 @@ To install the YAML2JSON extension in your OutSystems environment, follow the st
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 

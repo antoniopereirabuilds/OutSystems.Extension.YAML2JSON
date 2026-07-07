@@ -81,10 +81,86 @@ public class Tests
         var yaml2json = new Yaml2Json();
 
         yaml2json.ConvertYamlToJson(String.Empty, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
-        Assert.IsFalse(isSuccess);
-        Assert.IsEmpty(result);
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
 
-        Assert.IsNotEmpty(errorData.Message);
+        Assert.That(errorData.Message, Is.Not.Empty);
         Assert.That(errorData.Message, Is.EqualTo("Error: The yaml text cannot be empty."));
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_NullInput()
+    {
+        var yaml2json = new Yaml2Json();
+
+        yaml2json.ConvertYamlToJson(null!, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
+
+        Assert.That(errorData.Message, Is.EqualTo("Error: The yaml text cannot be empty."));
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_NonYamlError_LeavesDefaultErrorPositions()
+    {
+        var yaml2json = new Yaml2Json();
+
+        yaml2json.ConvertYamlToJson(String.Empty, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(errorData.Start.Line, Is.EqualTo(-1));
+            Assert.That(errorData.Start.Column, Is.EqualTo(-1));
+            Assert.That(errorData.Start.Index, Is.EqualTo(-1));
+            Assert.That(errorData.End.Line, Is.EqualTo(-1));
+            Assert.That(errorData.End.Column, Is.EqualTo(-1));
+            Assert.That(errorData.End.Index, Is.EqualTo(-1));
+        });
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_RejectsAliases_BillionLaughs()
+    {
+        var yaml2json = new Yaml2Json();
+        // Classic "billion laughs" alias-expansion payload.
+        var input =
+            "a: &a [\"x\",\"x\",\"x\",\"x\"]\n" +
+            "b: &b [*a,*a,*a,*a]\n" +
+            "c: &c [*b,*b,*b,*b]\n" +
+            "d: [*c,*c,*c,*c]\n";
+
+        yaml2json.ConvertYamlToJson(input, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
+        Assert.That(errorData.Message, Does.Contain("aliases"));
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_RejectsExcessiveNestingDepth()
+    {
+        var yaml2json = new Yaml2Json();
+        // 200 levels of flow-sequence nesting exceeds the depth cap (100).
+        var input = new string('[', 200) + new string(']', 200);
+
+        yaml2json.ConvertYamlToJson(input, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
+        Assert.That(errorData.Message, Does.Contain("nesting depth"));
+    }
+
+    [Test]
+    public void ConvertYAML2JSON_RejectsOversizedInput()
+    {
+        var yaml2json = new Yaml2Json();
+        var input = new string('a', 1_048_576 + 1); // one char over the 1 MB cap
+
+        yaml2json.ConvertYamlToJson(input, out string result, out bool isSuccess, out Yaml2Json_Error errorData);
+
+        Assert.That(isSuccess, Is.False);
+        Assert.That(result, Is.Empty);
+        Assert.That(errorData.Message, Does.Contain("maximum allowed size"));
     }
 }

@@ -5,13 +5,17 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 # --- DEFINED HERE FOR REUSABILITY ---
 env:
   PROJECT_NAME: OutSystems.YAML2JSON
   PRODUCT_NAME: YAML2JSON
 # ------------------------------------
+
+# Least-privilege token: this job only reads the repo and uploads coverage.
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -20,10 +24,10 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
       with:
         dotnet-version: '8.0.x'
 
@@ -42,7 +46,7 @@ jobs:
         --results-directory ./coverage
 
     - name: Report Code Coverage
-      uses: irongut/CodeCoverageSummary@v1.3.0
+      uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95 # v1.3.0
       with:
         filename: coverage/**/coverage.cobertura.xml
         badge: true
@@ -54,7 +58,7 @@ jobs:
       run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
       with: 
         token: ${{ secrets.CODECOV_TOKEN }} 
         directory: ./coverage
