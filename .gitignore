@@ -46,5 +46,10 @@ coverage*/
 publish/
 *_Asset.zip
 
+## Secrets & local config
+.env
+*.dev.local
+appsettings.Development.json
+
 ## Claude
 .claude/
